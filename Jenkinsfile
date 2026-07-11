@@ -22,7 +22,7 @@ pipeline {
             echo "Pipeline Passed Successfully"
 
             mail(
-                to: "shekharghura824@gmail.com",
+                to: "shekharsinha7325@gmail.com",
                 subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
 Hello Team,
@@ -49,7 +49,7 @@ Jenkins CI/CD
             echo "Pipeline Failed"
 
             mail(
-                to: "info4work413@gmail.com",
+                to: "shekharsinha7325@gail.com",
                 subject: "❌ FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
 Hello Team,
