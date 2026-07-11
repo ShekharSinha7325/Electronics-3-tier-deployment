@@ -22,7 +22,7 @@ pipeline {
             echo "Pipeline Passed Successfully"
 
             mail(
-                to: "info4work413@gmail.com",
+                to: "shekharghura824@gmail.com",
                 subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
 Hello Team,
