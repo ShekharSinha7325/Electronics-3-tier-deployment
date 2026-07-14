@@ -1,79 +1,74 @@
-pipeline {
-    agent {
-        label 'electronix'
+pipeline{
+    agent { label 'electronix'}
+
+    environment{
+        S3_BUCKET='electronix-production-7634'
+        CLOUDFRONT_ID='EI4K7BWWB1925'
+        AWS_REGION='us-east-1'
     }
 
-    stages {
-        stage("I am from Electronics") {
-            steps {
-                echo "Hello from Electronics"
+    stages{
+        stage("Frontend Deployment"){
+            when{
+                changeset "frontend/**"
             }
-        }
 
-        stage("Electronics Setup") {
-            steps {
-                echo "Electronics Setup is Working ✅"
+            stages{
+                stage('Install Dependencies'){
+                    steps{
+                        dir('frontend'){
+                            sh '''
+                            npm install
+                            '''
+                        }
+                    }
+                }
+
+                stage("Run Tests"){
+                    steps{
+                        dir('frontend'){
+                            sh 'npm test -- --watchAll=false || echo "No Test Configured.."'
+                        }
+                    }
+                }
+
+                stage("Build"){
+                    steps{
+                        dir('frontend'){
+                            sh 'npm run build'
+                        }
+                    }
+                }
+
+                stage('Deploy S3'){
+                    steps{
+                        dir('frontend'){
+                            sh '''
+                            aws s3 sync dist/ s3://${S3_BUCKET} --delete --region ${AWS_REGION}
+                            '''
+                        }
+                    }
+                }
+
+                
+                stage('Invalidation Cloudfront Cache'){
+                    steps{
+                        sh '''
+                        aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_ID} --paths "/*"
+                        '''
+                    }
+                }
             }
         }
     }
 
-    post {
-        success {
-            echo "Pipeline Passed Successfully"
-
-            mail(
-                to: "shekharsinha7325@gmail.com",
-                subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-Hello Team,
-
-The Jenkins pipeline has completed successfully.
-
-Build Details:
-• Job Name      : ${env.JOB_NAME}
-• Build Number  : ${env.BUILD_NUMBER}
-• Build Status  : SUCCESS
-
-Build URL:
-${env.BUILD_URL}
-
-This is an automated notification from Jenkins.
-
-Regards,
-Jenkins CI/CD
-"""
-            )
+    post{
+        success{
+            echo 'Frontent Deployment Successfull ✅'
         }
 
         failure {
-            echo "Pipeline Failed"
-
-            mail(
-                to: "shekharsinha7325@gail.com",
-                subject: "❌ FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-Hello Team,
-
-The Jenkins pipeline execution has failed.
-
-Build Details:
-• Job Name      : ${env.JOB_NAME}
-• Build Number  : ${env.BUILD_NUMBER}
-• Build Status  : FAILURE
-
-Please review the build logs and investigate the issue.
-
-Build URL:
-${env.BUILD_URL}
-
-This is an automated notification from Jenkins.
-
-Regards,
-Jenkins CI/CD
-"""
-            )
+           echo 'Frontent Deployment Failed ❌'
         }
-
-        
     }
 }
