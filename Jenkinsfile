@@ -5,7 +5,7 @@ pipeline{
         S3_BUCKET='electronix-production-7634'
         CLOUDFRONT_ID='EI4K7BWWB1925'
         AWS_REGION='us-east-1'
-    }
+    } 
 
     stages{
         stage("Frontend Deployment"){
